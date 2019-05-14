@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace Homework1
 {
@@ -16,5 +17,14 @@ namespace Homework1
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            output.Text = "";
+            MatchCollection mc = Regex.Matches(inputString.Text, pattern.Text);
+            foreach (Match m in mc)
+                output.Text += m;
+        }
+
     }
 }
