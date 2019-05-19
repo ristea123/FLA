@@ -29,98 +29,111 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.button5 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.moveLineButton = new System.Windows.Forms.Button();
+            this.deleteLineButton = new System.Windows.Forms.Button();
+            this.addLineButton = new System.Windows.Forms.Button();
+            this.editLineButton = new System.Windows.Forms.Button();
+            this.deleteNodeButton = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button6 = new System.Windows.Forms.Button();
+            this.editNodeButton = new System.Windows.Forms.Button();
+            this.addNodeButton = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
             // 
             this.panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.panel1.Controls.Add(this.button6);
-            this.panel1.Controls.Add(this.button5);
-            this.panel1.Controls.Add(this.button4);
-            this.panel1.Controls.Add(this.button3);
+            this.panel1.Controls.Add(this.moveLineButton);
+            this.panel1.Controls.Add(this.deleteLineButton);
+            this.panel1.Controls.Add(this.addLineButton);
+            this.panel1.Controls.Add(this.editLineButton);
+            this.panel1.Controls.Add(this.deleteNodeButton);
             this.panel1.Controls.Add(this.textBox1);
-            this.panel1.Controls.Add(this.button2);
-            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.editNodeButton);
+            this.panel1.Controls.Add(this.addNodeButton);
             this.panel1.Location = new System.Drawing.Point(1, 12);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(754, 409);
             this.panel1.TabIndex = 0;
             this.panel1.Click += new System.EventHandler(this.panel1_Click);
             // 
-            // button5
+            // moveLineButton
             // 
-            this.button5.Location = new System.Drawing.Point(23, 228);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(75, 23);
-            this.button5.TabIndex = 5;
-            this.button5.Text = "EditLine";
-            this.button5.UseVisualStyleBackColor = true;
-            this.button5.Click += new System.EventHandler(this.button5_Click);
+            this.moveLineButton.Location = new System.Drawing.Point(23, 311);
+            this.moveLineButton.Name = "moveLineButton";
+            this.moveLineButton.Size = new System.Drawing.Size(100, 23);
+            this.moveLineButton.TabIndex = 7;
+            this.moveLineButton.Text = "MoveNode";
+            this.moveLineButton.UseVisualStyleBackColor = true;
+            this.moveLineButton.Click += new System.EventHandler(this.moveNodeButton_Click);
             // 
-            // button4
+            // deleteLineButton
             // 
-            this.button4.Location = new System.Drawing.Point(23, 180);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "AddLine";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.deleteLineButton.Location = new System.Drawing.Point(23, 258);
+            this.deleteLineButton.Name = "deleteLineButton";
+            this.deleteLineButton.Size = new System.Drawing.Size(100, 23);
+            this.deleteLineButton.TabIndex = 6;
+            this.deleteLineButton.Text = "DeleteLine";
+            this.deleteLineButton.UseVisualStyleBackColor = true;
+            this.deleteLineButton.Click += new System.EventHandler(this.deleteLineButton_Click);
             // 
-            // button3
+            // addLineButton
             // 
-            this.button3.Location = new System.Drawing.Point(23, 135);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(100, 23);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "DeleteNode";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.addLineButton.Location = new System.Drawing.Point(23, 206);
+            this.addLineButton.Name = "addLineButton";
+            this.addLineButton.Size = new System.Drawing.Size(75, 23);
+            this.addLineButton.TabIndex = 5;
+            this.addLineButton.Text = "AddLine";
+            this.addLineButton.UseVisualStyleBackColor = true;
+            this.addLineButton.Click += new System.EventHandler(this.addLineButton_Click);
+            // 
+            // editLineButton
+            // 
+            this.editLineButton.Location = new System.Drawing.Point(23, 160);
+            this.editLineButton.Name = "editLineButton";
+            this.editLineButton.Size = new System.Drawing.Size(75, 23);
+            this.editLineButton.TabIndex = 4;
+            this.editLineButton.Text = "EditLine";
+            this.editLineButton.UseVisualStyleBackColor = true;
+            this.editLineButton.Click += new System.EventHandler(this.editLineButton_Click);
+            // 
+            // deleteNodeButton
+            // 
+            this.deleteNodeButton.Location = new System.Drawing.Point(23, 111);
+            this.deleteNodeButton.Name = "deleteNodeButton";
+            this.deleteNodeButton.Size = new System.Drawing.Size(100, 23);
+            this.deleteNodeButton.TabIndex = 3;
+            this.deleteNodeButton.Text = "DeleteNode";
+            this.deleteNodeButton.UseVisualStyleBackColor = true;
+            this.deleteNodeButton.Click += new System.EventHandler(this.deleteNodeButton_Click);
             // 
             // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(23, 316);
+            this.textBox1.Location = new System.Drawing.Point(23, 340);
             this.textBox1.Name = "textBox1";
             this.textBox1.Size = new System.Drawing.Size(100, 22);
             this.textBox1.TabIndex = 2;
             // 
-            // button2
+            // editNodeButton
             // 
-            this.button2.Location = new System.Drawing.Point(23, 77);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 23);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "EditNodeName";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.editNodeButton.Location = new System.Drawing.Point(23, 62);
+            this.editNodeButton.Name = "editNodeButton";
+            this.editNodeButton.Size = new System.Drawing.Size(75, 23);
+            this.editNodeButton.TabIndex = 1;
+            this.editNodeButton.Text = "EditNodeName";
+            this.editNodeButton.UseVisualStyleBackColor = true;
+            this.editNodeButton.Click += new System.EventHandler(this.editNodeButton_Click);
             // 
-            // button1
+            // addNodeButton
             // 
-            this.button1.Location = new System.Drawing.Point(23, 17);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "AddNode";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(23, 274);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(100, 23);
-            this.button6.TabIndex = 6;
-            this.button6.Text = "DeleteLine";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
+            this.addNodeButton.Location = new System.Drawing.Point(23, 17);
+            this.addNodeButton.Name = "addNodeButton";
+            this.addNodeButton.Size = new System.Drawing.Size(75, 23);
+            this.addNodeButton.TabIndex = 0;
+            this.addNodeButton.Text = "AddNode";
+            this.addNodeButton.UseVisualStyleBackColor = true;
+            this.addNodeButton.Click += new System.EventHandler(this.addNodeButton_Click);
+ 
             // 
             // Form1
             // 
@@ -140,13 +153,14 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button addNodeButton;
+        private System.Windows.Forms.Button editNodeButton;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Button deleteNodeButton;
+        private System.Windows.Forms.Button editLineButton;
+        private System.Windows.Forms.Button addLineButton;
+        private System.Windows.Forms.Button deleteLineButton;
+        private System.Windows.Forms.Button moveLineButton;
     }
 }
 
