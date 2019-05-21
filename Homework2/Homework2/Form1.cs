@@ -10,53 +10,148 @@ using System.Windows.Forms;
 
 namespace Homework2
 {
-
-    class Line : ICloneable
+    static class Helper
     {
-        public Point p1, p2;
-
-        public Line Clone() { return (Line)this.MemberwiseClone(); }
-        object ICloneable.Clone() { return Clone(); }
-
-        public Label index, value;
-
-        public bool Equals(Line obj)
+        public static void createLabel(Label lbl, Point position, Form1 form)
         {
-            if (obj.p1 == this.p1 && obj.p2 == this.p2)
-            {
-                return true;
-            }
-            return false;
+            lbl.Text = "1";
+            lbl.AutoSize = true;
+            lbl.Location = new Point(position.X, position.Y);
+            form.Controls.Add(lbl);
+            lbl.BringToFront();
         }
 
+        public static Node findNodeByIndex(Label index, List<Node> nodes)
+        {
+            foreach (Node node in nodes)
+                if (node.index == index)
+                    return node;
+            return null;
+        }
+
+        public static Line findLineByIndex(Label index, List<Line> lines)
+        {
+            foreach (Line line in lines)
+                if (line.index == index)
+                    return line;
+            return null;
+        }
+
+        public static void deleteNode(Node n, List<Line> lns, Graphics g, Pen p, List<Node> nds)
+        {
+            g.DrawRectangle(p, n.rect);
+            n.index.Dispose();
+            n.value.Dispose();
+            nds.Remove(n);
+            foreach (Line ln in lns.ToList())
+                if (ln.node1 == n || ln.node2 == n)
+                {
+                    g.DrawLine(p, ln.node1.rect.Location, ln.node2.rect.Location);
+                    ln.index.Dispose();
+                    ln.value.Dispose();
+                    lns.Remove(ln);
+                }
+        }
+
+        public static void createLine(Node n1, Node n2, List<Line> lns, Graphics g, Pen p, Form1 form)
+        {
+            Line ln = new Line();
+            ln.node1 = n1;
+            ln.node2 = n2;
+            g.DrawLine(p, n1.rect.Location, n2.rect.Location);
+
+            ln.index = new Label();
+            ln.value = new Label();
+            Point labelPosition = new Point((n1.rect.Location.X + n2.rect.Location.X) / 2, (n1.rect.Location.Y + n2.rect.Location.Y) /2);
+            createLabel(ln.index, labelPosition, form);
+            labelPosition.Y += 25;
+            createLabel(ln.value, labelPosition, form);
+
+            lns.Add(ln);
+        }
+        public static void deleteLine(Line ln, List<Line> lns, Graphics g, Pen wp, Pen bp)
+        {
+            g.DrawLine(wp, ln.node1.rect.Location, ln.node2.rect.Location);
+            g.DrawRectangle(bp, ln.node1.rect);
+            g.DrawRectangle(bp, ln.node2.rect);
+            ln.index.Dispose();
+            ln.value.Dispose();
+            lns.Remove(ln);
+        }
+        public static void moveNode(List<Line> lns, Node n, Graphics g, Pen wp, Pen bp, Point poz)
+        {
+            g.DrawRectangle(wp, n.rect);
+            foreach (Line ln in lns)
+                if (ln.node1 == n || ln.node2 == n)
+                    g.DrawLine(wp, ln.node1.rect.Location, ln.node2.rect.Location);
+            n.rect.Location = poz;
+            g.DrawRectangle(bp, n.rect);
+
+            Point labelPosition = n.rect.Location;
+            labelPosition.X += 16;
+            labelPosition.Y += 15;
+            n.index.Location = labelPosition;
+            labelPosition.Y += 20;
+            n.value.Location = labelPosition;
+            foreach (Line ln in lns)
+                if (ln.node1 == n || ln.node2 == n)
+                {
+                    labelPosition = new Point((ln.node1.rect.Location.X + ln.node2.rect.Location.X) / 2, (ln.node1.rect.Location.Y + ln.node2.rect.Location.Y) / 2);
+                    ln.index.Location = labelPosition;
+                    labelPosition.Y += 25;
+                    ln.value.Location = labelPosition;
+                    g.DrawLine(bp, ln.node1.rect.Location, ln.node2.rect.Location);
+                }
+
+        }
+        public static void moveLine(Line ln, Node oldNode, Node destinationNode, Graphics g, Pen wp, Pen bp)
+        {
+            g.DrawLine(wp, ln.node1.rect.Location, ln.node2.rect.Location);
+            g.DrawRectangle(bp, oldNode.rect);
+            if (ln.node1 == oldNode)
+                ln.node1 = destinationNode;
+            else
+                ln.node2 = destinationNode;
+            Point labelPosition = new Point((ln.node1.rect.Location.X + ln.node2.rect.Location.X) / 2, (ln.node1.rect.Location.Y + ln.node2.rect.Location.Y) / 2);
+            ln.index.Location = labelPosition;
+            labelPosition.Y += 25;
+            ln.value.Location = labelPosition;
+            g.DrawLine(bp, ln.node1.rect.Location, ln.node2.rect.Location);
+        }
+    }
+
+    class Line
+    {
+        public Node node1, node2;
+        public Label index, value;
     };
 
     class Node
     {
         public Rectangle rect;
-        public List<Line> vertices;
         public Label index, value;
     }
-
 
     public partial class Form1 : Form
     {
         List<Node> Nodes = new List<Node>();
+        List<Line> Lines = new List<Line>();
         Pen blackPen = new Pen(Color.Black);
         Pen whitePen = new Pen(Color.White);
+        Node selectedNode;
+        Line selectedLine;
         Graphics g;
-
-        Point lineStart;
-        int selectedRectPos;
 
         bool isAddNodePushed = false;
         bool isEditNodePushed = false;
         bool isDeleteNodePushed = false;
         bool isAddLinePushed = false;
-        bool isRectSelected = false;
+        bool isNodeSelected = false;
+        bool isLineSelected = false;
         bool isEditLinePushed = false;
         bool isDeleteLinePushed = false;
         bool isMoveNodePushed = false;
+        bool isMoveLinePushed = false;
 
         public Form1()
         {
@@ -64,58 +159,87 @@ namespace Homework2
             g = panel1.CreateGraphics();
         }
 
+        private void disableAllButtons()
+        {
+            isAddNodePushed = false;
+            isEditNodePushed = false;
+            isDeleteNodePushed = false;
+            isAddLinePushed = false;
+            isEditLinePushed = false;
+            isDeleteLinePushed = false;
+            isMoveNodePushed = false;
+            isNodeSelected = false;
+            isMoveLinePushed = false;
+            isLineSelected = false;
+        }
+
         private void addNodeButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isAddNodePushed = true;
+        }
+
+        private void moveLineButton_Click(object sender, EventArgs e)
+        {
+            disableAllButtons();
+            isMoveLinePushed = true;
         }
 
         private void editNodeButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isEditNodePushed = true;
         }
 
         private void deleteNodeButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isDeleteNodePushed = true;
         }
 
         private void addLineButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isAddLinePushed = true;
         }
 
         private void deleteLineButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isDeleteLinePushed = true;
         }
 
         private void moveNodeButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isMoveNodePushed = true;
         }
 
         private void editLineButton_Click(object sender, EventArgs e)
         {
+            disableAllButtons();
             isEditLinePushed = true;
         }
 
         private void panel1_Click(object sender, EventArgs e)
         {
-            Point position = panel1.PointToClient(Cursor.Position);
+            Point clickPosition = panel1.PointToClient(Cursor.Position);
 
             if (isAddNodePushed)
             {
                 Node node = new Node();
-                node.rect = new Rectangle(position.X, position.Y, 40, 40);
-                node.vertices = new List<Line>();
+                node.rect = new Rectangle(clickPosition.X, clickPosition.Y, 40, 40);
+                g.DrawRectangle(blackPen, node.rect);
 
                 Label index = new Label();
-                index.Text = "1";
-                index.AutoSize = true;
-                index.ForeColor = Color.Red;
-                index.Location = new Point(position.X + 16, position.Y + 15);
-                this.Controls.Add(index);
-                index.BringToFront();
+                Label value = new Label();
+
+                Point lblPos = clickPosition;
+                lblPos.X += 16;
+                lblPos.Y += 15;
+                Helper.createLabel(index, lblPos, this);
+                lblPos.Y += 20;
+                Helper.createLabel(value, lblPos, this);
 
                 index.Click += delegate
                 {
@@ -124,131 +248,94 @@ namespace Homework2
                         index.Text = textBox1.Text;
                         isEditNodePushed = false;
                     }
+                    if (isMoveLinePushed && isLineSelected && !isNodeSelected)
+                    {
+                        selectedNode = Helper.findNodeByIndex(index, Nodes);
+                        if(selectedNode == selectedLine.node1 || selectedNode == selectedLine.node2)
+                            isNodeSelected = true;
+                    }
+
+                    if (isMoveLinePushed && isLineSelected && isNodeSelected)
+                    {
+                        Node destinationNode = Helper.findNodeByIndex(index, Nodes);
+                        if (destinationNode != selectedLine.node1 && destinationNode != selectedLine.node2)
+                        {
+                            Helper.moveLine(selectedLine, selectedNode, destinationNode, g, whitePen, blackPen);
+                            isMoveLinePushed = false;
+                            isLineSelected = false;
+                            isNodeSelected = false;
+                        }
+                    }
+
+                    if (isAddLinePushed && isNodeSelected)
+                    {
+                        Node selectedNode2 = Helper.findNodeByIndex(index, Nodes);
+                        bool ok = true;
+                        foreach (Line ln in Lines)
+                        {
+                            if ((ln.node1 == selectedNode && ln.node2 == selectedNode2) || (ln.node1 == selectedNode2 && ln.node2 == selectedNode))
+                                ok = false;
+                        }
+
+                        if (selectedNode == selectedNode2)
+                            ok = false;
+
+                        if (ok)
+                        { 
+                            Helper.createLine(selectedNode, selectedNode2, Lines, g, blackPen, this);
+                            Line addedLine = Lines.Last();
+                            addedLine.index.Click += delegate
+                            {
+                                if (isEditLinePushed && textBox1.Text != "")
+                                { 
+                                    addedLine.index.Text = textBox1.Text;
+                                    isEditLinePushed = false;
+                                }
+                                if (isDeleteLinePushed)
+                                {
+                                    Helper.deleteLine(addedLine, Lines, g, whitePen, blackPen);
+                                    isDeleteLinePushed = false;
+                                }
+                                if (isMoveLinePushed && !isLineSelected)
+                                {
+                                    isLineSelected = true;
+                                    selectedLine = Helper.findLineByIndex(addedLine.index, Lines);
+                                }
+                            };
+
+                            addedLine.value.Click += delegate
+                            {
+                                if (isEditLinePushed && textBox1.Text != "")
+                                {
+                                    addedLine.value.Text = textBox1.Text;
+                                    isEditLinePushed = false;
+                                }
+                            };
+
+                            isAddLinePushed = false;
+                            isNodeSelected = false;
+                        }
+                    }
+
+                    if (isMoveNodePushed && !isNodeSelected)
+                    {
+                        selectedNode = Helper.findNodeByIndex(index, Nodes);
+                        isNodeSelected = true;
+                    }
+
+                    if (isAddLinePushed && !isNodeSelected)
+                    {
+                        isNodeSelected = true;
+                        selectedNode = Helper.findNodeByIndex(index, Nodes);
+                    }
                     if (isDeleteNodePushed)
                     {
-                        for (int i = 0; i < Nodes.Count(); i++)
-                            if (Nodes[i].index == index)
-                            {
-                                g.DrawRectangle(whitePen, Nodes[i].rect);
-                                Nodes[i].index.Dispose();
-                                Nodes[i].value.Dispose();
-                                for (int j = 0; j < Nodes[i].vertices.Count(); j++)
-                                {
-                                    g.DrawLine(whitePen, Nodes[i].vertices[j].p1, Nodes[i].vertices[j].p2);
-                                    Nodes[i].vertices[j].index.Dispose();
-                                    Nodes[i].vertices[j].value.Dispose();
-                                }
-                                Nodes.Remove(Nodes[i]);
-                            }
+                        Node n = Helper.findNodeByIndex(index, Nodes);
+                        Helper.deleteNode(n, Lines, g, whitePen, Nodes);
                         isDeleteNodePushed = false;
                     }
 
-                    if (isMoveNodePushed && !isRectSelected)
-                    {
-                        isRectSelected = true;
-                        for (int i = 0; i < Nodes.Count(); i++)
-                            if (Nodes[i].index == index)
-                                selectedRectPos = i;
-                    }
-
-                    if (isAddLinePushed && isRectSelected)
-                    {
-                        Line line = new Line();
-                        line.p1 = lineStart;
-                        for (int i = 0; i < Nodes.Count(); i++)
-                            if (Nodes[i].index == index)
-                            {
-                                line.p2 = Nodes[i].rect.Location;
-                                Point tmp1 = line.p1;
-                                line.p1 = line.p2;
-                                line.p2 = tmp1;
-                                Label lineIndex = new Label();
-                                lineIndex.Text = "1";
-                                lineIndex.AutoSize = true;
-                                lineIndex.ForeColor = Color.Red;
-                                lineIndex.Location = new Point((line.p1.X  + line.p2.X)/2, (line.p1.Y + line.p2.Y)/2);
-                                this.Controls.Add(lineIndex);
-                                lineIndex.BringToFront();
-                                lineIndex.Click += delegate
-                                {
-                                    if (isEditLinePushed && textBox1.Text != "")
-                                    {
-                                        lineIndex.Text = textBox1.Text;
-                                        isEditLinePushed = false;
-                                    }
-                                    if (isDeleteLinePushed)
-                                    {
-                                        for (int j = 0; j < Nodes.Count; j++)
-                                            for (int k = 0; k < Nodes[j].vertices.Count(); k++)
-                                                if (lineIndex == Nodes[j].vertices[k].index)
-                                                {
-                                                    Nodes[j].vertices[k].index.Dispose();
-                                                    Nodes[j].vertices[k].value.Dispose();
-                                                    g.DrawLine(whitePen, Nodes[j].vertices[k].p1, Nodes[j].vertices[k].p2);
-                                                    Nodes[j].vertices.RemoveAt(k);
-                                                }
-                                    }
-                                };
-
-                                Label lineValue = new Label();
-                                lineValue.Text = "1";
-                                lineValue.AutoSize = true;
-                                lineValue.ForeColor = Color.Red;
-                                lineValue.Location = new Point((line.p1.X + line.p2.X) / 2, (line.p1.Y + line.p2.Y) / 2 + 25);
-                                this.Controls.Add(lineValue);
-                                lineValue.BringToFront();
-
-                                lineValue.Click += delegate
-                                {
-                                    if (isEditLinePushed && textBox1.Text != "")
-                                    {
-                                        lineValue.Text = textBox1.Text;
-                                        isEditLinePushed = false;
-                                    }
-                                };
-
-                                line.index = lineIndex;
-                                line.value = lineValue;
-                                Nodes[i].vertices.Add(line);
-                                g.DrawLine(blackPen, line.p1, line.p2);
-                                break;
-                            }
-
-                        Line line2 = (Line)line.Clone();
-
-                        Point tmp = line2.p1;
-                        line2.p1 = line2.p2;
-                        line2.p2 = tmp;
-
-                        Nodes[selectedRectPos].vertices.Add(line2);
-                        isAddLinePushed = false;
-                        isRectSelected = false;
-                    }
-
-                    if(isAddLinePushed && !isRectSelected)
-                    {
-                        isRectSelected = true;
-                        for (int i = 0; i < Nodes.Count(); i++)
-                            if (Nodes[i].index == index)
-                            {
-                                lineStart = Nodes[i].rect.Location;
-                                selectedRectPos = i;
-                                break;
-                            }
-
-                    }
                 };
-
-
-
-                Label value = new Label();
-                value.Text = "1";
-                value.AutoSize = true;
-                value.ForeColor = Color.Red;
-                value.Location = new Point(position.X + 16, position.Y + 35);
-                this.Controls.Add(value);
-                value.BringToFront();
-
                 value.Click += delegate
                 {
                     if (isEditNodePushed && textBox1.Text != "")
@@ -261,60 +348,14 @@ namespace Homework2
                 node.index = index;
                 node.value = value;
                 Nodes.Add(node);
-                g.DrawRectangle(blackPen, node.rect);
-
-                isAddNodePushed = false;
             }
-            if (isMoveNodePushed && isRectSelected)
+            if (isMoveNodePushed && isNodeSelected)
             {
-
-                g.DrawRectangle(whitePen, Nodes[selectedRectPos].rect);
-                int distX = Nodes[selectedRectPos].rect.X - position.X;
-                int distY = Nodes[selectedRectPos].rect.Y - position.Y;
-                Nodes[selectedRectPos].rect.X -= distX;
-                Nodes[selectedRectPos].rect.Y -= distY;
-                g.DrawRectangle(blackPen, Nodes[selectedRectPos].rect);
-
-                Point newPoint = new Point(Nodes[selectedRectPos].index.Location.X - distX, Nodes[selectedRectPos].index.Location.Y - distY);
-                Nodes[selectedRectPos].index.Location = newPoint;
-                newPoint = new Point(Nodes[selectedRectPos].value.Location.X - distX, Nodes[selectedRectPos].value.Location.Y - distY);
-                Nodes[selectedRectPos].value.Location = newPoint;
-
-                for (int i = 0; i < Nodes[selectedRectPos].vertices.Count(); i++)
-                {
-                    bool found = false;
-                    int j = 0, k = 0;
-                    for (j = 0; j < Nodes.Count(); j++)
-                    {
-                        if (j != selectedRectPos)
-                            for (k = 0; k < Nodes[j].vertices.Count(); k++)
-                            {
-                                if (Nodes[j].vertices[k].index == Nodes[selectedRectPos].vertices[i].index)
-                                {
-                                    found = true;
-                                    break;
-                                }
-
-                            }
-                        if (found == true)
-                            break;
-                    }
-                    g.DrawLine(whitePen, Nodes[selectedRectPos].vertices[i].p1, Nodes[selectedRectPos].vertices[i].p2);
-                    newPoint = new Point(Nodes[selectedRectPos].vertices[i].p1.X - distX, Nodes[selectedRectPos].vertices[i].p1.Y - distY);
-                    Nodes[selectedRectPos].vertices[i].p1 = newPoint;
-                    Nodes[j].vertices[k].p2 = newPoint;
-                    g.DrawLine(blackPen, Nodes[selectedRectPos].vertices[i].p1, Nodes[selectedRectPos].vertices[i].p2);
-                    newPoint = new Point((Nodes[selectedRectPos].vertices[i].p1.X + Nodes[selectedRectPos].vertices[i].p2.X) / 2, (Nodes[selectedRectPos].vertices[i].p1.Y + Nodes[selectedRectPos].vertices[i].p2.Y) / 2);
-                    Nodes[selectedRectPos].vertices[i].index.Location = newPoint;
-                    Nodes[j].vertices[k].index.Location = newPoint;
-                    newPoint = new Point((Nodes[selectedRectPos].vertices[i].p1.X + Nodes[selectedRectPos].vertices[i].p2.X) / 2, (Nodes[selectedRectPos].vertices[i].p1.Y + Nodes[selectedRectPos].vertices[i].p2.Y) / 2 + 25);
-                    Nodes[selectedRectPos].vertices[i].value.Location = newPoint;
-                    Nodes[j].vertices[k].value.Location = newPoint;
-                }
+                Helper.moveNode(Lines, selectedNode, g, whitePen, blackPen, clickPosition);
                 isMoveNodePushed = false;
-                isRectSelected = false;
+                isNodeSelected = false;
             }
+            isAddNodePushed = false;
         }
-
     }
 }
